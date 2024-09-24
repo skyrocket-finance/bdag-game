@@ -1,0 +1,12 @@
+// Override default variables before the import
+
+$first-color: #222831;
+$second-color: #393e46;
+$third-color: #0092ca;
+$fourth-color: #eeeeff;
+
+$body-bg: $first-color;
+$navbar-bg: $second-color;
+$navbar-text-color: $fourth-color;
+$navbar-hover-color: $third-color;
+$navbar-hover-bg: $second-color;

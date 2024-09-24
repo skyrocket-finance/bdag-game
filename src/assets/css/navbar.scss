@@ -1,0 +1,13 @@
+.custom-navbar {
+  background-color: $navbar-bg;
+  color: white;
+
+  .nav-link {
+    color: white;
+
+    &:hover {
+      color: $navbar-hover-color;
+      background-color: $navbar-hover-bg;
+    }
+  }
+}

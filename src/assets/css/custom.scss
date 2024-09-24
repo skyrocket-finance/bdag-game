@@ -1,0 +1,18 @@
+@import "constants";
+
+@import "custom-font";
+
+@import "navbar";
+@import "brand";
+
+@import "pixelart";
+
+.custom-center {
+  min-width: 100%;
+}
+
+@import "char/char";
+@import "metamask";
+
+// Import Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap.scss';

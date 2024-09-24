@@ -1,0 +1,16 @@
+/* Spaceship container */
+.char-container {
+  display: inline-block;
+  width: 450px;
+  height: 450px;
+  position: relative;
+  margin: -10px;
+  background-color: white;
+}
+
+.char_part {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
