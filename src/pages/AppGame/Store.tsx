@@ -32,7 +32,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
       // eslint-disable-next-line
       contract.methods.buySkyRocketNFT().send({
         from: account,
-        value: "10000000000000000000",
+        value: "5000000000000000000",
         gasPrice: Web3.utils.toWei("5", "gwei"),
         gas: Web3.utils.toWei("0.0000000000005", "ether")
       })
@@ -113,7 +113,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
         <h2>Buy NFTs</h2>
         <Col xs="12" md={"12"} lg={"12"} className={'pixel-box--primary pixel-borders--2 '}>
 
-          Buy a SkyRocket NFT for 10 BDAG
+          Buy a SkyRocket NFT for 5 BDAG
           <br/>
           <br/>
           <button className={"pixel-box--primary pixel-box--success-custom pixelart-buy-nft"} onClick={buyNFT}>Buy
@@ -125,7 +125,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
         <h2>Sell NFTs</h2>
         <Col xs="12" md={"12"} lg={"12"} className={'pixel-box--primary pixel-borders--2 '}>
-          <span>Sell a SkyRocket NFT for 5 BDAG. Click on any NFT</span><br/>
+          <span>Sell a SkyRocket NFT for 2.5 BDAG. Click on any NFT</span><br/>
           {ownedDNA && ownedDNA.length === 0 ?
             <div>
               You do not have any NFTs yet. Go to the store to buy some!
