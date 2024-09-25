@@ -1,9 +1,8 @@
 import React from "react";
 
 
-
 interface CharRocketProps {
-  dna?: number
+  dna?: any
 }
 
 const HEAD_PARTS = 10;
@@ -15,17 +14,17 @@ const CARD_PARTS = 3;
 
 export const CharRocket = ({dna}: CharRocketProps) => {
 
-  function dnaArray(dna: number | undefined): number[] {
+  function dnaArray(dna: any | undefined): number[] {
     if (dna === undefined) {
       return [];
     }
 
-    let dnaStr = dna.toString();      // Convert number to string
-    return dnaStr.split('').map(Number); // Convert each character back to a number
+    let dnaStr = dna.dna.toString();      // Convert number to string
+    return dnaStr.split('').map(Number);  // Convert each character back to a number
 
   }
 
-  function calcPart(dna: number | undefined, slice_start: number, slice_end: number, parts: number): number {
+  function calcPart(dna: any | undefined, slice_start: number, slice_end: number, parts: number): number {
     const dna_head = parseInt(dnaArray(dna).slice(slice_start, slice_end).join(''));
     return dna_head % parts + 1;
   }
@@ -40,16 +39,22 @@ export const CharRocket = ({dna}: CharRocketProps) => {
   const image_rocket_char_card = require('../assets/images/rocket-char/CARD' + calcPart(dna, 10, 12, CARD_PARTS) + '.png')
 
   return (
-    <div id="char" className={"char-container"}>
-      <img src={image_rocket_char_card} alt={'alt-img'} className={"char_part"}/>
+    <>
 
-      <img src={image_rocket_char_base} alt={'alt-img'} className={"char_part"}/>
-      <img src={image_rocket_char_head} alt={'alt-img'} className={"char_part"}/>
-      <img src={image_rocket_char_flames} alt={'alt-img'} className={"char_part"}/>
-      <img src={image_rocket_char_eyes} alt={'alt-img'} className={"char_part"}/>
-      <img src={image_rocket_char_belt_arms_neck} alt={'alt-img'} className={"char_part"}/>
-      <img src={image_rocket_char_body} alt={'alt-img'} className={"char_part"}/>
+      <div id="char" className={"char-container"}>
 
-    </div>
+        <span className={"char_part top-char-part"}>{dna.nft_id}</span>
+        <img src={image_rocket_char_card} alt={'alt-img'} className={"char_part"}/>
+
+        <img src={image_rocket_char_base} alt={'alt-img'} className={"char_part"}/>
+        <img src={image_rocket_char_head} alt={'alt-img'} className={"char_part"}/>
+        <img src={image_rocket_char_flames} alt={'alt-img'} className={"char_part"}/>
+        <img src={image_rocket_char_eyes} alt={'alt-img'} className={"char_part"}/>
+        <img src={image_rocket_char_belt_arms_neck} alt={'alt-img'} className={"char_part"}/>
+        <img src={image_rocket_char_body} alt={'alt-img'} className={"char_part"}/>
+
+      </div>
+    </>
+
   );
 }

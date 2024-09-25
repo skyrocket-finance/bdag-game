@@ -1,16 +1,39 @@
 /* Spaceship container */
 .char-container {
   display: inline-block;
-  width: 450px;
-  height: 450px;
+  width: 259px;
+  height: 284px;
   position: relative;
-  margin: -10px;
+  margin: 19px;
   background-color: white;
 }
 
+.char-selected {
+  border: 2px solid $fifth-color;
+}
+
+
 .char_part {
   position: absolute;
-  width: 100%;
+  //width: 100%;
   height: 100%;
 }
 
+.top-char-part {
+  z-index: 999;
+  color: $fourth-color;
+  background-color: $third-color;
+  font-size: 15px;
+  margin: 5px;
+  text-align: center;
+
+  border: 2px solid $fifth-color;
+
+  padding: 0 5px 0 5px;
+  // rounded border
+  border-radius: 0 0 50% 50%;
+  max-height: 32px;
+  max-width: 135px;
+  min-width: 15px;
+  min-height: 32px;
+}

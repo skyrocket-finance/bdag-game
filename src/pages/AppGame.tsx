@@ -9,6 +9,8 @@ import Web3 from "web3";
 import { useEffect, useState } from "react";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import Store from "./AppGame/Store";
+import Profile from "./AppGame/Profile";
 
 const SkyRocketNFTFactoryContract = require('../ABI/SkyRocketNFTFactoryContract.json');
 
@@ -17,12 +19,14 @@ export const AppGame = () => {
   const [totalOwnedNFTS, setTotalOwnedNFTS] = useState<number>(0);
   const [ownedNFTsDNA, setOwnedNFTsDNA] = useState<any[]>([]);
 
-  // const provider = new Web3.providers.HttpProvider("https://rpc-testnet.bdagscan.com");
-
   const web3 = new Web3(connector.provider);
 
-  const nftContractAddress = '0x65d8C59A4bE02ED7Af3E521FdbBdBf2B5F4996e4';
+  const nftContractAddress = '0xA6d20B0696BAfc8f13232efe97FE52106b8759F2';
   const contract = new web3.eth.Contract(SkyRocketNFTFactoryContract, nftContractAddress);
+
+  function setTotalOwnedNFTsFunc(fake: number) {
+    setTotalOwnedNFTS(fake);
+  }
 
   useEffect(() => {
     // Define the async function inside the useEffect
@@ -39,7 +43,7 @@ export const AppGame = () => {
 
           let ownedNFTsDNA = [];
           // @ts-ignore
-          for(let i = 0; i < ownedNFTids.length; i++) {
+          for (let i = 0; i < ownedNFTids.length; i++) {
             // @ts-ignore
             console.log('ownedNFT[i]', ownedNFTids[i]);
             // @ts-ignore
@@ -47,7 +51,10 @@ export const AppGame = () => {
             let nftDNA = await contract.methods.getDNAByNFTId(nftID).call();
             // @ts-ignore
             console.log('nftDNA', nftDNA);
-            ownedNFTsDNA.push(nftDNA);
+            ownedNFTsDNA.push({
+              dna: nftDNA,
+              nft_id: nftID
+            });
           }
           setOwnedNFTsDNA(ownedNFTsDNA);
 
@@ -65,7 +72,7 @@ export const AppGame = () => {
 
     fetchData();
 
-  }, [account]);
+  }, [account, totalOwnedNFTS]);
 
   if (!account) {
     return (
@@ -89,30 +96,26 @@ export const AppGame = () => {
       <Row xs={"10"}>
 
         <Col xs="12" className={'pixel-box--primary pixel-borders--2'}>
-          {totalOwnedNFTS}<br/>
-
           <Tabs
             defaultActiveKey="profile"
             id="uncontrolled-tab-example"
-            className="mb-3"
+            className="mb-3 text-white-50"
           >
-            <Tab eventKey="home" title="Home">
-              Tab content for Home
-            </Tab>
             <Tab eventKey="profile" title="Profile">
-              Tab content for Profile
+              <Profile ownedDNA={ownedNFTsDNA}/>
             </Tab>
-            <Tab eventKey="contact" title="Contact" disabled>
-              Tab content for Contact
+
+            <Tab eventKey="store" title="Store">
+              <Store ownedDNA={ownedNFTsDNA} setTotalOwnedNFTsFunc={setTotalOwnedNFTsFunc}/>
+            </Tab>
+
+
+            <Tab eventKey="battle" title="Battle">
+              Coming Soon!!1
             </Tab>
           </Tabs>
 
           <br/>
-
-          {ownedNFTsDNA.map((dna, index) => {
-
-            return <CharRocket key={index} dna={dna} />;
-          })}
 
           <br/>
         </Col>

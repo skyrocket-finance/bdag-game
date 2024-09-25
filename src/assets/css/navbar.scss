@@ -1,13 +1,30 @@
 .custom-navbar {
-  background-color: $navbar-bg;
+  background-color: $second-color;
   color: white;
 
   .nav-link {
     color: white;
 
     &:hover {
-      color: $navbar-hover-color;
-      background-color: $navbar-hover-bg;
+      color: $fourth-color;
+      background-color: $first-color;
     }
   }
+}
+
+
+.nav-tabs .nav-link {
+  background-color: transparent !important;
+  color: $fourth-color !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+
+  &:hover {
+    border-bottom: solid 6px $fourth-color !important;
+  }
+}
+
+.nav-tabs .nav-link.active {
+  border-bottom: solid 6px $fourth-color !important;
 }

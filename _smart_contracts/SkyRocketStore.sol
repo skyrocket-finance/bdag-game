@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.12;
 
 /**
  * @dev Provides information about the current execution context, including the
@@ -245,6 +245,7 @@ library SafeMath {
     }
 }
 
+
 /**
  * @dev Interface of the ERC165 standard, as defined in the
  * https://eips.ethereum.org/EIPS/eip-165[EIP].
@@ -265,6 +266,7 @@ interface IERC165 {
      */
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
+
 
 /**
  * @dev Implementation of the {IERC165} interface.
@@ -291,9 +293,20 @@ abstract contract ERC165 is IERC165 {
 
 /**
  * @dev String operations.
+ * Enhanced Strings library by SkyRocket
+ * Added concatenation
  */
 library Strings {
     bytes16 private constant _HEX_SYMBOLS = "0123456789abcdef";
+
+    /**
+    * @dev
+    * Added by SkyRocket
+    * Concatenation for string types
+    **/
+    function append(string memory a, string memory b, string memory c, string memory d, string memory e) internal pure returns (string memory) {
+        return string(abi.encodePacked(a, b, c, d, e));
+    }
 
     /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
@@ -350,7 +363,29 @@ library Strings {
         require(value == 0, "Strings: hex length insufficient");
         return string(buffer);
     }
+
+    /**
+    * @dev
+    * Convert address to string
+    **/
+    function addressToAsciiString(address x) internal pure returns (string memory) {
+        bytes memory s = new bytes(40);
+        for (uint i = 0; i < 20; i++) {
+            bytes1 b = bytes1(uint8(uint(uint160(x)) / (2 ** (8 * (19 - i)))));
+            bytes1 hi = bytes1(uint8(b) / 16);
+            bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+            s[2 * i] = char(hi);
+            s[2 * i + 1] = char(lo);
+        }
+        return string(s);
+    }
+
+    function char(bytes1 b) internal pure returns (bytes1 c) {
+        if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+        else return bytes1(uint8(b) + 0x57);
+    }
 }
+
 
 /**
  * @dev Collection of functions related to the address type
@@ -404,7 +439,7 @@ library Address {
     function sendValue(address payable recipient, uint256 amount) internal {
         require(address(this).balance >= amount, "Address: insufficient balance");
 
-        (bool success,) = recipient.call{value: amount}("");
+        (bool success,) = recipient.call{value : amount}("");
         require(success, "Address: unable to send value, recipient may have reverted");
     }
 
@@ -478,7 +513,7 @@ library Address {
         require(address(this).balance >= value, "Address: insufficient balance for call");
         require(isContract(target), "Address: call to non-contract");
 
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        (bool success, bytes memory returndata) = target.call{value : value}(data);
         return verifyCallResult(success, returndata, errorMessage);
     }
 
@@ -815,125 +850,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 /**
- * @dev Required interface of an ERC1155 compliant contract, as defined in the
- * https://eips.ethereum.org/EIPS/eip-1155[EIP].
- *
- * _Available since v3.1._
- */
-interface IERC1155 is IERC165 {
-    /**
-     * @dev Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
-     */
-    event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
-
-    /**
-     * @dev Equivalent to multiple {TransferSingle} events, where `operator`, `from` and `to` are the same for all
-     * transfers.
-     */
-    event TransferBatch(
-        address indexed operator,
-        address indexed from,
-        address indexed to,
-        uint256[] ids,
-        uint256[] values
-    );
-
-    /**
-     * @dev Emitted when `account` grants or revokes permission to `operator` to transfer their tokens, according to
-     * `approved`.
-     */
-    event ApprovalForAll(address indexed account, address indexed operator, bool approved);
-
-    /**
-     * @dev Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic URI.
-     *
-     * If an {URI} event was emitted for `id`, the standard
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[guarantees] that `value` will equal the value
-     * returned by {IERC1155MetadataURI-uri}.
-     */
-    event URI(string value, uint256 indexed id);
-
-    /**
-     * @dev Returns the amount of tokens of token type `id` owned by `account`.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     */
-    function balanceOf(address account, uint256 id) external view returns (uint256);
-
-    /**
-     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {balanceOf}.
-     *
-     * Requirements:
-     *
-     * - `accounts` and `ids` must have the same length.
-     */
-    function balanceOfBatch(address[] calldata accounts, uint256[] calldata ids)
-    external
-    view
-    returns (uint256[] memory);
-
-    /**
-     * @dev Grants or revokes permission to `operator` to transfer the caller's tokens, according to `approved`,
-     *
-     * Emits an {ApprovalForAll} event.
-     *
-     * Requirements:
-     *
-     * - `operator` cannot be the caller.
-     */
-    function setApprovalForAll(address operator, bool approved) external;
-
-    /**
-     * @dev Returns true if `operator` is approved to transfer ``account``'s tokens.
-     *
-     * See {setApprovalForAll}.
-     */
-    function isApprovedForAll(address account, address operator) external view returns (bool);
-
-    /**
-     * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
-     *
-     * Emits a {TransferSingle} event.
-     *
-     * Requirements:
-     *
-     * - `to` cannot be the zero address.
-     * - If the caller is not `from`, it must be have been approved to spend ``from``'s tokens via {setApprovalForAll}.
-     * - `from` must have a balance of tokens of type `id` of at least `amount`.
-     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
-     * acceptance magic value.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes calldata data
-    ) external;
-
-    /**
-     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
-     *
-     * Emits a {TransferBatch} event.
-     *
-     * Requirements:
-     *
-     * - `ids` and `amounts` must have the same length.
-     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
-     * acceptance magic value.
-     */
-    function safeBatchTransferFrom(
-        address from,
-        address to,
-        uint256[] calldata ids,
-        uint256[] calldata amounts,
-        bytes calldata data
-    ) external;
-}
-
-/**
  * @dev _Available since v3.1._
  */
 interface IERC1155Receiver is IERC165 {
@@ -981,767 +897,268 @@ interface IERC1155Receiver is IERC165 {
 }
 
 /**
- * @dev Interface of the optional ERC1155MetadataExtension interface, as defined
- * in the https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[EIP].
- *
- * _Available since v3.1._
+ * @dev _Available since v3.1._
  */
-interface IERC1155MetadataURI is IERC1155 {
-    /**
-     * @dev Returns the URI for token type `id`.
-     *
-     * If the `\{id\}` substring is present in the URI, it must be replaced by
-     * clients with the actual token type ID.
-     */
-    function uri(uint256 id) external view returns (string memory);
-}
-
-/**
- * @dev Implementation of the basic standard multi-token.
- * See https://eips.ethereum.org/EIPS/eip-1155
- * Originally based on code by Enjin: https://github.com/enjin/erc-1155
- *
- * _Available since v3.1._
- */
-contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
-    using Address for address;
-
-    // Mapping from token ID to account balances
-    mapping(uint256 => mapping(address => uint256)) private _balances;
-
-    // Mapping from account to operator approvals
-    mapping(address => mapping(address => bool)) private _operatorApprovals;
-
-    // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
-    string private _uri;
-
-    /**
-     * @dev See {_setURI}.
-     */
-    constructor(string memory uri_) {
-        _setURI(uri_);
-    }
-
+abstract contract ERC1155Receiver is ERC165, IERC1155Receiver {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
-        return
-            interfaceId == type(IERC1155).interfaceId ||
-            interfaceId == type(IERC1155MetadataURI).interfaceId ||
-            super.supportsInterface(interfaceId);
-    }
-
-    function getPrivateUri() public view virtual returns (string memory) {
-        return _uri;
-    }
-
-    /**
-     * @dev See {IERC1155MetadataURI-uri}.
-     *
-     * This implementation returns the same URI for *all* token types. It relies
-     * on the token type ID substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
-     *
-     * Clients calling this function must replace the `\{id\}` substring with the
-     * actual token type ID.
-     */
-    function uri(uint256) public view virtual override returns (string memory) {
-        return _uri;
-    }
-
-    /**
-     * @dev See {IERC1155-balanceOf}.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     */
-    function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        require(account != address(0), "ERC1155: balance query for the zero address");
-        return _balances[id][account];
-    }
-
-    /**
-     * @dev See {IERC1155-balanceOfBatch}.
-     *
-     * Requirements:
-     *
-     * - `accounts` and `ids` must have the same length.
-     */
-    function balanceOfBatch(address[] memory accounts, uint256[] memory ids)
-    public
-    view
-    virtual
-    override
-    returns (uint256[] memory)
-    {
-        require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
-
-        uint256[] memory batchBalances = new uint256[](accounts.length);
-
-        for (uint256 i = 0; i < accounts.length; ++i) {
-            batchBalances[i] = balanceOf(accounts[i], ids[i]);
-        }
-
-        return batchBalances;
-    }
-
-    /**
-     * @dev See {IERC1155-setApprovalForAll}.
-     */
-    function setApprovalForAll(address operator, bool approved) public virtual override {
-        require(_msgSender() != operator, "ERC1155: setting approval status for self");
-
-        _operatorApprovals[_msgSender()][operator] = approved;
-        emit ApprovalForAll(_msgSender(), operator, approved);
-    }
-
-    /**
-     * @dev See {IERC1155-isApprovedForAll}.
-     */
-    function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
-        return _operatorApprovals[account][operator];
-    }
-
-    /**
-     * @dev See {IERC1155-safeTransferFrom}.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public virtual override {
-        require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: caller is not owner nor approved"
-        );
-        _safeTransferFrom(from, to, id, amount, data);
-    }
-
-    /**
-     * @dev See {IERC1155-safeBatchTransferFrom}.
-     */
-    function safeBatchTransferFrom(
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) public virtual override {
-        require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: transfer caller is not owner nor approved"
-        );
-        _safeBatchTransferFrom(from, to, ids, amounts, data);
-    }
-
-    /**
-     * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
-     *
-     * Emits a {TransferSingle} event.
-     *
-     * Requirements:
-     *
-     * - `to` cannot be the zero address.
-     * - `from` must have a balance of tokens of type `id` of at least `amount`.
-     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
-     * acceptance magic value.
-     */
-    function _safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) internal virtual {
-        require(to != address(0), "ERC1155: transfer to the zero address");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
-
-        uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-        unchecked {
-            _balances[id][from] = fromBalance - amount;
-        }
-        _balances[id][to] += amount;
-
-        emit TransferSingle(operator, from, to, id, amount);
-
-        _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
-    }
-
-    /**
-     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_safeTransferFrom}.
-     *
-     * Emits a {TransferBatch} event.
-     *
-     * Requirements:
-     *
-     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
-     * acceptance magic value.
-     */
-    function _safeBatchTransferFrom(
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-        require(to != address(0), "ERC1155: transfer to the zero address");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
-
-        for (uint256 i = 0; i < ids.length; ++i) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
-
-            uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-            unchecked {
-                _balances[id][from] = fromBalance - amount;
-            }
-            _balances[id][to] += amount;
-        }
-
-        emit TransferBatch(operator, from, to, ids, amounts);
-
-        _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
-    }
-
-    /**
-     * @dev Sets a new URI for all token types, by relying on the token type ID
-     * substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
-     *
-     * By this mechanism, any occurrence of the `\{id\}` substring in either the
-     * URI or any of the amounts in the JSON file at said URI will be replaced by
-     * clients with the token type ID.
-     *
-     * For example, the `https://token-cdn-domain/\{id\}.json` URI would be
-     * interpreted by clients as
-     * `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
-     * for token type ID 0x4cce0.
-     *
-     * See {uri}.
-     *
-     * Because these URIs cannot be meaningfully represented by the {URI} event,
-     * this function emits no events.
-     */
-    function _setURI(string memory newuri) internal virtual {
-        _uri = newuri;
-    }
-
-    /**
-     * @dev Creates `amount` tokens of token type `id`, and assigns them to `account`.
-     *
-     * Emits a {TransferSingle} event.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     * - If `account` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
-     * acceptance magic value.
-     */
-    function _mint(
-        address account,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) internal virtual {
-        require(account != address(0), "ERC1155: mint to the zero address");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, address(0), account, _asSingletonArray(id), _asSingletonArray(amount), data);
-
-        _balances[id][account] += amount;
-        emit TransferSingle(operator, address(0), account, id, amount);
-
-        _doSafeTransferAcceptanceCheck(operator, address(0), account, id, amount, data);
-    }
-
-    /**
-     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_mint}.
-     *
-     * Requirements:
-     *
-     * - `ids` and `amounts` must have the same length.
-     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
-     * acceptance magic value.
-     */
-    function _mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {
-        require(to != address(0), "ERC1155: mint to the zero address");
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
-
-        for (uint256 i = 0; i < ids.length; i++) {
-            _balances[ids[i]][to] += amounts[i];
-        }
-
-        emit TransferBatch(operator, address(0), to, ids, amounts);
-
-        _doSafeBatchTransferAcceptanceCheck(operator, address(0), to, ids, amounts, data);
-    }
-
-    /**
-     * @dev Destroys `amount` tokens of token type `id` from `account`
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     * - `account` must have at least `amount` tokens of token type `id`.
-     */
-    function _burn(
-        address account,
-        uint256 id,
-        uint256 amount
-    ) internal virtual {
-        require(account != address(0), "ERC1155: burn from the zero address");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, account, address(0), _asSingletonArray(id), _asSingletonArray(amount), "");
-
-        uint256 accountBalance = _balances[id][account];
-        require(accountBalance >= amount, "ERC1155: burn amount exceeds balance");
-        unchecked {
-            _balances[id][account] = accountBalance - amount;
-        }
-
-        emit TransferSingle(operator, account, address(0), id, amount);
-    }
-
-    /**
-     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_burn}.
-     *
-     * Requirements:
-     *
-     * - `ids` and `amounts` must have the same length.
-     */
-    function _burnBatch(
-        address account,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) internal virtual {
-        require(account != address(0), "ERC1155: burn from the zero address");
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, account, address(0), ids, amounts, "");
-
-        for (uint256 i = 0; i < ids.length; i++) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
-
-            uint256 accountBalance = _balances[id][account];
-            require(accountBalance >= amount, "ERC1155: burn amount exceeds balance");
-            unchecked {
-                _balances[id][account] = accountBalance - amount;
-            }
-        }
-
-        emit TransferBatch(operator, account, address(0), ids, amounts);
-    }
-
-    /**
-     * @dev Hook that is called before any token transfer. This includes minting
-     * and burning, as well as batched variants.
-     *
-     * The same hook is called on both single and batched variants. For single
-     * transfers, the length of the `id` and `amount` arrays will be 1.
-     *
-     * Calling conditions (for each `id` and `amount` pair):
-     *
-     * - When `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * of token type `id` will be  transferred to `to`.
-     * - When `from` is zero, `amount` tokens of token type `id` will be minted
-     * for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens of token type `id`
-     * will be burned.
-     * - `from` and `to` are never both zero.
-     * - `ids` and `amounts` have the same, non-zero length.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _beforeTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {}
-
-    function _doSafeTransferAcceptanceCheck(
-        address operator,
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) private {
-        if (to.isContract()) {
-            try IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
-                if (response != IERC1155Receiver.onERC1155Received.selector) {
-                    revert("ERC1155: ERC1155Receiver rejected tokens");
-                }
-            } catch Error(string memory reason) {
-                revert(reason);
-            } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
-            }
-        }
-    }
-
-    function _doSafeBatchTransferAcceptanceCheck(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) private {
-        if (to.isContract()) {
-            try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (
-                bytes4 response
-            ) {
-                if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
-                    revert("ERC1155: ERC1155Receiver rejected tokens");
-                }
-            } catch Error(string memory reason) {
-                revert(reason);
-            } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
-            }
-        }
-    }
-
-    function _asSingletonArray(uint256 element) private pure returns (uint256[] memory) {
-        uint256[] memory array = new uint256[](1);
-        array[0] = element;
-
-        return array;
+        return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
     }
 }
 
 /**
- * @dev Extension of ERC1155 that adds tracking of total supply per id.
- *
- * Useful for scenarios where Fungible and Non-fungible tokens have to be
- * clearly identified. Note: While a totalSupply of 1 might mean the
- * corresponding is an NFT, there is no guarantees that no other token with the
- * same id are not going to be minted.
+ * @dev _Available since v3.1._
  */
-abstract contract ERC1155Supply is ERC1155 {
-    mapping(uint256 => uint256) private _totalSupply;
-
-    /**
-     * @dev Total amount of tokens in with a given id.
-     */
-    function totalSupply(uint256 id) public view virtual returns (uint256) {
-        return _totalSupply[id];
+contract ERC1155Holder is ERC1155Receiver {
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155Received.selector;
     }
 
-    /**
-     * @dev Indicates whether any token exist with a given id, or not.
-     */
-    function exists(uint256 id) public view virtual returns (bool) {
-        return ERC1155Supply.totalSupply(id) > 0;
-    }
-
-    /**
-     * @dev See {ERC1155-_mint}.
-     */
-    function _mint(
-        address account,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) internal virtual override {
-        super._mint(account, id, amount, data);
-        _totalSupply[id] += amount;
-    }
-
-    /**
-     * @dev See {ERC1155-_mintBatch}.
-     */
-    function _mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual override {
-        super._mintBatch(to, ids, amounts, data);
-        for (uint256 i = 0; i < ids.length; ++i) {
-            _totalSupply[ids[i]] += amounts[i];
-        }
-    }
-
-    /**
-     * @dev See {ERC1155-_burn}.
-     */
-    function _burn(
-        address account,
-        uint256 id,
-        uint256 amount
-    ) internal virtual override {
-        super._burn(account, id, amount);
-        _totalSupply[id] -= amount;
-    }
-
-    /**
-     * @dev See {ERC1155-_burnBatch}.
-     */
-    function _burnBatch(
-        address account,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) internal virtual override {
-        super._burnBatch(account, ids, amounts);
-        for (uint256 i = 0; i < ids.length; ++i) {
-            _totalSupply[ids[i]] -= amounts[i];
-        }
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 }
 
 /**
- * @dev Extension of {ERC1155} that allows token holders to destroy both their
- * own tokens and those that they have been approved to use.
- *
- * _Available since v3.1._
- */
-abstract contract ERC1155Burnable is ERC1155Supply {
+* @dev
+* Interface to access the SkyRocketNFTFactory
+**/
+abstract contract ISkyRocketNFTFactory  {
 
+    /**
+     * @dev Grants or revokes permission to `operator` to transfer the caller's tokens, according to `approved`,
+     *
+     * Emits an {ApprovalForAll} event.
+     *
+     * Requirements:
+     *
+     * - `operator` cannot be the caller.
+     */
+    function setApprovalForAll(address operator, bool approved) external virtual;
 
-    function burnBatch(
-        address account,
-        uint256[] memory ids,
-        uint256[] memory values
-    ) public virtual {
-        require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
-            "ERC1155: caller is not owner nor approved"
-        );
-
-        _burnBatch(account, ids, values);
-    }
-}
-
-contract SkyRocketNFTFactory is ERC1155Burnable, AccessControl {
-
-    bool private UseNewERC1155Uri = false;
-
-    uint256 public nftId = 1;
-    uint256 public totalSupplyNFT = 200_000;
-
-    uint256 private dnaDigits = 16;
-    uint256 private dnaModulus = 10 ** dnaDigits;
-
-    struct SkyRocketNFTStruct {
-        bool initialized;
-        uint256 tier;
-        string tierName;
-        uint256 DNA;
-    }
-
-    // Maps the NFT Id to the SkyRocketNFT
-    mapping(uint256 => SkyRocketNFTStruct) public SkyRocketNFT;  // Maps NFTId by SkyRocketNFTStruct
-
-    // Maps the Address to the NFT Ids owned by the address
-    mapping(address => uint256[]) public ownedNFTs;  // Maps Address by NFTId
-
-    constructor() ERC1155("https://skyrocket.fi/nft/") {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    }
-
-    // Needed for compiling
-    function supportsInterface(bytes4 _interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
-        return super.supportsInterface(_interfaceId);
-    }
-
-    // Getters and Setters
     /**
     * @dev
-    * use new ERC1155 standard ?
+    * Returns the balance of the number of NFTs based on the NFTId
     **/
-    function updateUseNewERC1155Uri(bool _val) public isAdmin {
-        UseNewERC1155Uri = _val;
-    }
+    function balanceOf(address _owner, uint256 _nftId) external view virtual returns (uint256);
 
     /**
-    * @dev Update the URI
+    * @dev
+    * Returns the balance of a list of addresses
     **/
-    function updateUri(string memory _newUri) public isAdmin {
-        _setURI(_newUri);
-    }
+    function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) external view virtual returns (uint256[] memory);
 
     /**
-    * @dev Update the total supply
+    * @dev
+    * Mint the NFT
     **/
-    function updateTotalSupplyNFT(uint256 _newTotalSupplyNFT) public isAdmin {
-        totalSupplyNFT = _newTotalSupplyNFT;
-    }
+    function mint(address _to, uint256 _nftId, uint256 _quantity, bytes calldata _data) external virtual;
 
     /**
-    * @dev Increment the nftId, private
+    * @dev
+    * Check if the NFT is mintable
     **/
-    function _incrementNftId() private {
-        nftId++;
-    }
+    function isMintable(uint256 _nftId) external view virtual returns (bool);
 
     /**
-    * @dev Get the total owned NFTs by the address
+    * @dev
+    * Transfer the NFT _from _to
     **/
-    function getTotalOwnedNFTs(address _address) public view returns (uint256 _totalOwnedNFTs) {
-        return ownedNFTs[_address].length;
-    }
+    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes calldata _data) external virtual;
 
     /**
-    * @dev Get array of all owned NFTs by the address
+    * @dev
+    * Safe transfer a batch of NFTs _from _to
     **/
-    function getOwnedNFTs(address _address) public view returns (uint256[] memory _ownedNFTs) {
-        return ownedNFTs[_address];
-    }
+    function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _amounts, bytes calldata _data) external virtual;
 
     /**
-    * @dev Get DNA by NFT Id
+    * @dev
+    * Get max supply for token NFT id
     **/
-    function getDNAByNFTId(uint256 _nftId) public view returns (uint256 _dna) {
-        return SkyRocketNFT[_nftId].DNA;
-    }
+    function maxSupply(uint256 _nftId) external view virtual returns (uint256);
 
     /**
-    * @dev See {IERC1155MetadataURI-uri}.
-    *
-    * This implementation returns the same URI for *all* token types. It relies
-    * on the token type ID substitution mechanism
-    * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
-    *
-    * Clients calling this function must replace the `\{id\}` substring with the
-    * actual token type ID.
-    *
-    * REMEMBER: We have updated the ERC1155 and added getPrivateUri() ?-_-?
-    **/
-    function uri(uint256 _id) public view virtual override returns (string memory) {
-        require(SkyRocketNFT[_id].initialized == true, "NFT does not exist");
-
-        if (UseNewERC1155Uri) {
-            return getPrivateUri();  // Just remember to add {id}.json
-        }
-
-        return string(abi.encodePacked(getPrivateUri(), Strings.toString(_id)));
-    }
+    * @dev Total amount of tokens in with a given NFT id.
+     */
+    function totalSupply(uint256 _nftId) external view virtual returns (uint256);
 
     /**
     * @dev
     * Get the Tier based on the NFT Id
     **/
-    function getTierByNFTId(uint256 _nftId) public view returns (uint256 _tier) {
-        return SkyRocketNFT[_nftId].tier;
-    }
+    function getTierByNFTId(uint256 _nftId) external view virtual returns (uint256);
+
+    /**
+    * @dev
+    * Burn the NFT
+    **/
+    function burn(address account, uint256 id, uint256 value) external virtual;
+
+    /**
+    * @dev Get the total owned NFTs by the address
+    **/
+    function getTotalOwnedNFTs(address _address) external view virtual returns (uint256);
+
+    /**
+    * @dev Get array of all owned NFTs by the address
+    **/
+    function getOwnedNFTs(address _address) external view virtual returns (uint256[] memory);
+
+    /**
+    * @dev Get DNA by NFT Id
+    **/
+    function getDNAByNFTId(uint256 _nftId) external view virtual returns (uint256);
 
     /**
     * @dev
     * Get the Tier Name based on the NFT Id
     **/
-    function getTierNameByNFTId(uint256 _nftId) public view returns (string memory _tierName) {
-        return SkyRocketNFT[_nftId].tierName;
-    }
-
-    // BusinessLogic
-    /**
-    * @dev Create a random DNA
-    **/
-    function createRandomDNA() public view returns (uint256)
-    {
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        block.timestamp,
-                        block.difficulty,
-                        msg.sender
-                    )
-                )
-            ) % dnaModulus;
-    }
+    function getTierNameByNFTId(uint256 _nftId) public view virtual returns (string memory);
 
     /**
     * @dev Mint the token to the _receiver address, although you can specify a quantity it is suggested to mint only 1
     * Only Admins are allowed to mint tokens
     **/
-    function mint(address _receiver, bytes calldata _data) public isAdmin {
-        require(nftId <= totalSupplyNFT, "NFT no longer mintable");
-        require(SkyRocketNFT[nftId].initialized == false, "NFT already exists");
+    function mint(address _receiver, bytes calldata _data) external virtual;
 
-        createSkyRocketNFT(_receiver, _data);
+}
+
+
+contract StoreSkyRocketNFT is ERC1155Holder, AccessControl  {
+    using SafeMath for uint256;
+
+    ISkyRocketNFTFactory public skyRocketNFTFactory;
+
+    address private devWallet;
+
+    // NFT Price in WEI
+    uint256 public nftPrice = 10000000000000000000;  // 10 ETH
+
+    uint256 public totalNFTsBought = 0;
+    uint256 public totalETHReceived = 0;
+
+    uint256 public totalNFTsBurned = 0;
+    uint256 public totalETHSent = 0;
+
+    event BoughtNFT(address owner, uint256 nftPrice);
+
+    event WithdrawNFT(address admin, address receiver, uint256 nftId, uint256 amount);
+
+    event UpdateNFTPrice(address admin, uint256 oldNFTPrice, uint256 newNFTPrice);
+    event UpdateDevWallet(address admin, address oldDevWallet, address newDevWallet);
+    event UpdateSkyRocketNFTInterface(address admin, ISkyRocketNFTFactory oldSkyRocketNFTFactory, ISkyRocketNFTFactory newSkyRocketNFTFactory);
+
+    constructor(ISkyRocketNFTFactory _skyRocketNFTFactory, address _devWallet) {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        skyRocketNFTFactory = _skyRocketNFTFactory;
+        devWallet = _devWallet;
     }
 
-    function burn(address account, uint256 id, uint256 value) public virtual {
-        require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
-            "ERC1155: caller is not owner nor approved"
-        );
+    // Needed for compiling
+    function supportsInterface(bytes4 _interfaceId) public view virtual override(ERC1155Receiver, AccessControl) returns (bool) {
+        return super.supportsInterface(_interfaceId);
+    }
 
-        // Loop through the ownedNFTs and remove the NFT Id,
-        // Create a new array without the NFT Id and replace the old array
-        uint256[] memory _ownedNFTs = new uint256[](ownedNFTs[account].length - 1);
+    // Getters and Setters
+    /**
+    * @dev Update the ISkyRocketNFTFactory address
+    **/
+    function setSkyRocketNFTInterface(ISkyRocketNFTFactory _skyRocketNFTFactory) external isAdmin {
+        ISkyRocketNFTFactory _oldSkyRocketNFTFactory = _skyRocketNFTFactory;
 
-        for (uint256 i = 0; i < ownedNFTs[account].length; i++) {
-            if (ownedNFTs[account][i] != id) {
-                _ownedNFTs.push(ownedNFTs[account][i]);
-            }
-        }
+        skyRocketNFTFactory = _skyRocketNFTFactory;
 
-        // Replace the old array with the new array
-        ownedNFTs[account] = _ownedNFTs;
-
-        _burn(account, id, value);
+        emit UpdateSkyRocketNFTInterface(msg.sender, _oldSkyRocketNFTFactory, skyRocketNFTFactory);
     }
 
     /**
-    * @dev Create a new NFT
+    * @dev Replace the dev wallet
     **/
-    function createSkyRocketNFT(address _receiver, bytes calldata _data) private {
-        uint256 _dna = createRandomDNA();
+    function setDevWalletAddress(address _devWallet) external isAdmin {
+        address _oldDevWallet = devWallet;
 
-        string memory _tierName = "NORMAL";
+        devWallet = _devWallet;
 
-        if (nftId <= 50) {
-            _tierName = "LEGENDARY";
-        } else if (nftId > 50 && nftId <= 100) {
-            _tierName = "EPIC";
-        } else if (nftId > 100 && nftId <= 150) {
-            _tierName = "RARE";
-        } else if (nftId > 150 && nftId <= 200) {
-            _tierName = "UNCOMMON";
-        } else if (nftId > 200 && nftId <= 250) {
-            _tierName = "COMMON";
-        }
-
-        SkyRocketNFT[nftId] = SkyRocketNFTStruct(true, 1, _tierName, _dna);
-        ownedNFTs[_receiver].push(nftId);
-
-        _mint(_receiver, nftId, 1, _data);
-
-        _incrementNftId();
+        emit UpdateDevWallet(msg.sender, _oldDevWallet, _devWallet);
     }
 
+    /**
+    * @dev Update or Set the NFT Price
+    * Setting the NFT price to 0 will mean that this NFT does not have a price
+    **/
+    function setNFTPrice(uint256 _nftPrice) external isAdmin {
+        uint256 _oldNFTPrice = nftPrice;
+
+        nftPrice = _nftPrice;
+
+        emit UpdateNFTPrice(msg.sender, _oldNFTPrice, _nftPrice);
+    }
+
+    /**
+    * @dev Get the Balance of the wallet
+    **/
+    function getBalance(address _wallet) public view returns(uint256 _balance) {
+        return _wallet.balance;
+    }
+
+    // Checks
+
+    // BusinessLogic
+    /**
+    * @dev Buy the Tier NFT, provide the NFT ID.
+    **/
+    function buySkyRocketNFT() public payable {
+        require(msg.value == nftPrice, Strings.append("Incorrect amount of ETH sent ", Strings.toString(msg.value), "", "", ""));
+        require(msg.sender.balance >= nftPrice, Strings.append("You need more ETH in your wallet", Strings.toString(msg.sender.balance), Strings.toString(nftPrice), "", ""));
+
+        // Send 50% of the ETH to the dev wallet, keep 50% in the contract
+        uint256 _half = nftPrice.div(2);
+        Address.sendValue(payable(devWallet), _half);
+
+        totalETHReceived = totalETHReceived + nftPrice;
+        totalNFTsBought = totalNFTsBought + 1;
+
+        skyRocketNFTFactory.mint(msg.sender, "");
+
+        emit BoughtNFT(msg.sender, nftPrice);
+    }
+
+    /**
+    * @dev Withdraw the ETH from the contract
+    **/
+    function withdrawETH() external isAdmin {
+        uint256 _balance = getBalance(address(this));
+        Address.sendValue(payable(devWallet), _balance);
+    }
+
+    /**
+    * @dev Sell NFT
+    **/
+    function sellSkyRocketNFT(uint256 _nftId) public payable {
+        require(skyRocketNFTFactory.balanceOf(msg.sender, _nftId) >= 1, "You do not own this NFT");
+
+        skyRocketNFTFactory.burn(msg.sender, _nftId, 1);
+
+        // Send 50% of the ETH to the dev wallet, keep 50% in the contract
+        uint256 _half = nftPrice.div(2);
+        Address.sendValue(payable(msg.sender), _half);
+
+        totalETHSent = totalETHSent + _half;
+        totalNFTsBurned = totalNFTsBurned + 1;
+    }
 }
