@@ -8,7 +8,6 @@ import { TopNavigationLayout } from "./components/TopNavigationLayout";
 import Home from "./pages/Home";
 import { AppGame } from "./pages/AppGame";
 import { Page404 } from "./pages/errors/Page404";
-import Container from "react-bootstrap/Container";
 import { FooterLayout } from "./components/FooterLayout";
 
 function App() {

@@ -16,22 +16,22 @@ export const FooterLayout = () => {
           </div>
           <div className="col-md-4 mb-3">
             <h5>Follow Us</h5>
-            <div className="d-flex justify-content-center">
-              <a href="#" className="text-white mx-3">
-                <i className="fab fa-twitter fa-2x"></i>
-              </a>
-              <a href="#" className="text-white mx-3">
-                <i className="fab fa-discord fa-2x"></i>
-              </a>
-              <a href="#" className="text-white mx-3">
-                <i className="fab fa-instagram fa-2x"></i>
-              </a>
-            </div>
+            {/*<div className="d-flex justify-content-center">*/}
+            {/*  <a href="#" className="text-white mx-3">*/}
+            {/*    <i className="fab fa-twitter fa-2x"></i>*/}
+            {/*  </a>*/}
+            {/*  <a href="#" className="text-white mx-3">*/}
+            {/*    <i className="fab fa-discord fa-2x"></i>*/}
+            {/*  </a>*/}
+            {/*  <a href="#" className="text-white mx-3">*/}
+            {/*    <i className="fab fa-instagram fa-2x"></i>*/}
+            {/*  </a>*/}
+            {/*</div>*/}
           </div>
           <div className="col-md-4 mb-3">
             <h5>Quick Links</h5>
             <ul className="list-unstyled ">
-              <li><a href="https://blockdag.network" target='_blank' className="text-white-50">BlockDAG</a></li>
+              <li><a href="https://blockdag.network" target='_blank' rel="noreferrer" className="text-white-50">BlockDAG</a></li>
             </ul>
           </div>
         </div>

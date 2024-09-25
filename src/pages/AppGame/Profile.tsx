@@ -20,7 +20,7 @@ const Profile = ({ownedDNA}: ProfileProps) => {
 
           <Col xs="12" md={"12"} lg={"12"} className={'pixel-box--primary pixel-borders--2 '}>
 
-            {ownedDNA && ownedDNA.length == 0 ?
+            {ownedDNA && ownedDNA.length === 0 ?
               <div>
                 You do not have any NFTs yet. Go to the store to buy some!
               </div>

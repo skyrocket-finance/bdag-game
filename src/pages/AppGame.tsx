@@ -2,8 +2,6 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import { CharRocket } from "../components/CharRocket";
-
 import { useWeb3React } from "@web3-react/core";
 import Web3 from "web3";
 import { useEffect, useState } from "react";
@@ -15,7 +13,7 @@ import Profile from "./AppGame/Profile";
 const SkyRocketNFTFactoryContract = require('../ABI/SkyRocketNFTFactoryContract.json');
 
 export const AppGame = () => {
-  const {connector, chainId, account} = useWeb3React();
+  const {connector, account} = useWeb3React();
   const [totalOwnedNFTS, setTotalOwnedNFTS] = useState<number>(0);
   const [ownedNFTsDNA, setOwnedNFTsDNA] = useState<any[]>([]);
 
@@ -33,12 +31,14 @@ export const AppGame = () => {
     const fetchData = async () => {
       if (account) {
         try {
+          // eslint-disable-next-line
           const res = await contract.methods.getTotalOwnedNFTs(account).call({from: account});
           // @ts-ignore
           let totalOwnedNFTs = parseInt(res.toString().split('n')[0]);
           // @ts-ignore
           setTotalOwnedNFTS(totalOwnedNFTs);
-
+          // @ts-ignore
+          // eslint-disable-next-line
           const ownedNFTids = await contract.methods.getOwnedNFTs(account).call();
 
           let ownedNFTsDNA = [];
@@ -48,6 +48,8 @@ export const AppGame = () => {
             console.log('ownedNFT[i]', ownedNFTids[i]);
             // @ts-ignore
             let nftID = ownedNFTids[i].toString().split('n')[0];
+            // @ts-ignore
+            // eslint-disable-next-line
             let nftDNA = await contract.methods.getDNAByNFTId(nftID).call();
             // @ts-ignore
             console.log('nftDNA', nftDNA);
@@ -63,7 +65,8 @@ export const AppGame = () => {
           console.log('error', e);
         }
 
-
+        // @ts-ignore
+        // eslint-disable-next-line
         const res = await web3.eth.getBalance(account);
         console.log('res', res);
         // setTotalOwnedNFTS(parseInt(res.toString()));
@@ -72,6 +75,7 @@ export const AppGame = () => {
 
     fetchData();
 
+  // eslint-disable-next-line
   }, [account, totalOwnedNFTS]);
 
   if (!account) {

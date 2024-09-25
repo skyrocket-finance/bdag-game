@@ -1,9 +1,7 @@
-import { useWeb3React } from '@web3-react/core'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { CharRocket } from "../components/CharRocket";
 
 const Home = () => {
 

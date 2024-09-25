@@ -5,8 +5,7 @@ import Col from 'react-bootstrap/Col';
 import { useWeb3React } from "@web3-react/core";
 import Web3 from "web3";
 import React, { useEffect, useState } from "react";
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
+
 import { CharRocket } from "../../components/CharRocket";
 
 
@@ -29,6 +28,8 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
   function buyNFT() {
     try {
+      // @ts-ignore
+      // eslint-disable-next-line
       contract.methods.buySkyRocketNFT().send({
         from: account,
         value: "10000000000000000000",
@@ -53,7 +54,8 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
   function sellNFT(nftId: string) {
     try {
       console.log('nftId', nftId);
-
+      // @ts-ignore
+      // eslint-disable-next-line
       contract.methods.sellSkyRocketNFT(nftId).send({
         from: account,
         gasPrice: Web3.utils.toWei("5", "gwei"),
@@ -84,6 +86,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
       sellNFT(sellNFTId);
     }
 
+    // eslint-disable-next-line
   }, [transactionHash, sellNFTId]);
 
   if (!account) {
@@ -123,14 +126,14 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
         <h2>Sell NFTs</h2>
         <Col xs="12" md={"12"} lg={"12"} className={'pixel-box--primary pixel-borders--2 '}>
           <span>Sell a SkyRocket NFT for 5 BDAG. Click on any NFT</span><br/>
-          {ownedDNA && ownedDNA.length == 0 ?
+          {ownedDNA && ownedDNA.length === 0 ?
             <div>
               You do not have any NFTs yet. Go to the store to buy some!
             </div>
             : ownedDNA && ownedDNA.map((dna, index) => {
             return (
               <>
-                <a href={"#"} id={dna.nft_id} onClick={()=>setSellNFTId(dna.nft_id)}>
+                <a href={"#1"} id={dna.nft_id} onClick={()=>setSellNFTId(dna.nft_id)}>
                   <>
                     <CharRocket key={index} dna={dna}/>
                   </>

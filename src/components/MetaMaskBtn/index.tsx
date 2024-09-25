@@ -42,13 +42,13 @@ const MetaMaskBtn = () => {
     }
   };
 
-  const onDisconnectMetaMask = () => {
-    if (connector?.deactivate) {
-      connector.deactivate();
-    } else {
-      connector.resetState();
-    }
-  };
+  // const onDisconnectMetaMask = () => {
+  //   if (connector?.deactivate) {
+  //     connector.deactivate();
+  //   } else {
+  //     connector.resetState();
+  //   }
+  // };
 
   useEffect(() => {
     // actually, you can implement some kinds of sign functions here
