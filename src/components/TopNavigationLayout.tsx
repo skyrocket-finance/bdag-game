@@ -14,17 +14,15 @@ export const TopNavigationLayout = () => {
           <Navbar.Brand href="/" className="brand">SkyRocket</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav"/>
           <Navbar.Collapse id="basic-navbar-nav">
-            <div className="d-flex ">
 
+            <div className="d-flex ">
               <Nav className="me-auto">
 
                 <div className={'p-2'}>
-
                   <Nav.Link href="/">Home</Nav.Link>
                 </div>
 
                 <div className={'p-2'}>
-
                   <Nav.Link href="/AppGame">App</Nav.Link>
                 </div>
 
@@ -34,6 +32,7 @@ export const TopNavigationLayout = () => {
 
               </Nav>
             </div>
+
           </Navbar.Collapse>
         </Container>
       </Navbar>

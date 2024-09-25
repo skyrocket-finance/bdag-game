@@ -1625,6 +1625,20 @@ contract SkyRocketNFTFactory is ERC1155Burnable, AccessControl {
     }
 
     /**
+    * @dev Get array of all owned NFTs by the address
+    **/
+    function getOwnedNFTs(address _address) public view returns (uint256[] memory _ownedNFTs) {
+        return ownedNFTs[_address];
+    }
+
+    /**
+    * @dev Get DNA by NFT Id
+    **/
+    function getDNAByNFTId(uint256 _nftId) public view returns (uint256 _dna) {
+        return SkyRocketNFT[_nftId].DNA;
+    }
+
+    /**
     * @dev See {IERC1155MetadataURI-uri}.
     *
     * This implementation returns the same URI for *all* token types. It relies

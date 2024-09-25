@@ -1,9 +1,7 @@
 import React from "react";
 import { Web3ReactProvider } from "@web3-react/core";
 
-import MetaMaskBtn from "./components/MetaMaskBtn";
 import { connectors } from "./connectors";
-import logo from "./logo.svg";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TopNavigationLayout } from "./components/TopNavigationLayout";
@@ -11,6 +9,7 @@ import Home from "./pages/Home";
 import { AppGame } from "./pages/AppGame";
 import { Page404 } from "./pages/errors/Page404";
 import Container from "react-bootstrap/Container";
+import { FooterLayout } from "./components/FooterLayout";
 
 function App() {
   return (
@@ -24,6 +23,9 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <br/>
+      <FooterLayout/>
+
     </Web3ReactProvider>
   );
 }
