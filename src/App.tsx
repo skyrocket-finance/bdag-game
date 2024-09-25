@@ -17,8 +17,8 @@ function App() {
         <Routes>
           <Route path="/" element={<TopNavigationLayout/>}>
             <Route index element={<Home/>}/>
-            <Route path='/AppGame' element={<AppGame/>}/>
-            <Route path="*" element={<Page404/>}/>
+            <Route index path='/AppGame' element={<AppGame/>}/>
+            <Route index path="*" element={<Page404/>}/>
           </Route>
         </Routes>
       </BrowserRouter>
