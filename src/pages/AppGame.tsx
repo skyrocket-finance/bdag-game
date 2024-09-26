@@ -11,6 +11,8 @@ import Store from "./AppGame/Store";
 import Profile from "./AppGame/Profile";
 import Battle from "./AppGame/Battle";
 
+import { SKY_ROCKET_NFT_FACTORY_ADDRESS } from "../utils/Constants";
+
 const SkyRocketNFTFactoryContract = require('../ABI/SkyRocketNFTFactoryContract.json');
 
 export const AppGame = () => {
@@ -20,8 +22,7 @@ export const AppGame = () => {
 
   const web3 = new Web3(connector.provider);
 
-  const nftContractAddress = '0x8012be7F96f3194E6677D9628218Ff2F4930d7d8';
-  const contract = new web3.eth.Contract(SkyRocketNFTFactoryContract, nftContractAddress);
+  const contract = new web3.eth.Contract(SkyRocketNFTFactoryContract, SKY_ROCKET_NFT_FACTORY_ADDRESS);
 
   function setTotalOwnedNFTsFunc(fake: number) {
     setTotalOwnedNFTS(fake);
@@ -46,14 +47,11 @@ export const AppGame = () => {
           // @ts-ignore
           for (let i = 0; i < ownedNFTids.length; i++) {
             // @ts-ignore
-            console.log('ownedNFT[i]', ownedNFTids[i]);
-            // @ts-ignore
             let nftID = ownedNFTids[i].toString().split('n')[0];
             // @ts-ignore
             // eslint-disable-next-line
             let nftDNA = await contract.methods.getDNAByNFTId(nftID).call();
-            // @ts-ignore
-            console.log('nftDNA', nftDNA);
+
             ownedNFTsDNA.push({
               dna: nftDNA,
               nft_id: nftID
@@ -69,7 +67,6 @@ export const AppGame = () => {
         // @ts-ignore
         // eslint-disable-next-line
         const res = await web3.eth.getBalance(account);
-        console.log('res', res);
         // setTotalOwnedNFTS(parseInt(res.toString()));
       }
     };

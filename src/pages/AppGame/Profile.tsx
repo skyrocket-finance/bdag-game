@@ -10,7 +10,6 @@ interface ProfileProps {
 }
 
 const Profile = ({ownedDNA}: ProfileProps) => {
-  console.log(ownedDNA);
   return (
     <>
 

@@ -1152,6 +1152,7 @@ contract SkyRocketBattle is ERC1155Holder, AccessControl {
         skyRocketNFTFactory.safeTransferFrom(msg.sender, address(this), _opponentNFTId, 1, "");
 
         BattleStruct[_battleId].opponent = msg.sender;
+        BattleStruct[_battleId].opponentNFTId = _opponentNFTId;
 
         uint256 _initiatorNFTDNA = skyRocketNFTFactory.getDNAByNFTId(BattleStruct[_battleId].initiatorNFTId);
         uint256 _opponentNFTDNA = skyRocketNFTFactory.getDNAByNFTId(BattleStruct[_battleId].opponentNFTId);

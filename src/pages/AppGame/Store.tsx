@@ -7,6 +7,7 @@ import Web3 from "web3";
 import React, { useEffect, useState } from "react";
 
 import { CharRocket } from "../../components/CharRocket";
+import { PRICE_PER_NFT, SKY_ROCKET_NFT_FACTORY_ADDRESS, SKY_ROCKET_STORE_ADDRESS } from "../../utils/Constants";
 
 
 const SkyRocketStoreContract = require('../../ABI/SkyRocketStoreContract.json');
@@ -24,8 +25,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
   const web3 = new Web3(connector.provider);
 
-  const storeContractAddress = '0x653C5dC5f7f87A2E6260aA5Be71AB0172Ed865a2';
-  const contract = new web3.eth.Contract(SkyRocketStoreContract, storeContractAddress);
+  const contract = new web3.eth.Contract(SkyRocketStoreContract, SKY_ROCKET_STORE_ADDRESS);
 
   function buyNFT() {
     try {
@@ -33,19 +33,17 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
       // eslint-disable-next-line
       contract.methods.buySkyRocketNFT().send({
         from: account,
-        value: "100000000000000000",
+        value: PRICE_PER_NFT,
         gasPrice: Web3.utils.toWei("5", "gwei"),
         gas: Web3.utils.toWei("0.0000000000005", "ether")
       })
         .on('receipt', function (receipt: any) {
-          console.log('receipt', receipt);
           setTransactionHash(receipt.transactionHash);
           if (setTotalOwnedNFTsFunc) {
             setTotalOwnedNFTsFunc(1);
           }
         })
         .on('error', function (error: any) {
-          console.log('error', error);
         });
     } catch (e) {
       console.log('error', e);
@@ -54,7 +52,6 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
   function sellNFT(nftId: string) {
     try {
-      console.log('nftId', nftId);
       // @ts-ignore
       // eslint-disable-next-line
       contract.methods.sellSkyRocketNFT(nftId).send({
@@ -63,7 +60,6 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
         gas: Web3.utils.toWei("0.0000000000005", "ether")
       })
         .on('receipt', function (receipt: any) {
-          console.log('receipt', receipt);
           setTransactionHash(receipt.transactionHash);
           if (setTotalOwnedNFTsFunc) {
             setTotalOwnedNFTsFunc(1);
@@ -81,14 +77,11 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
   useEffect(() => {
     const isApproved = async () => {
       if (account) {
-        console.log('account', account);
         try {
           // eslint-disable-next-line
           const SkyRocketNFTFactoryContract = require('../../ABI/SkyRocketNFTFactoryContract.json');
-          const nftContractAddress = '0xA6d20B0696BAfc8f13232efe97FE52106b8759F2';
-          const nftContract = new web3.eth.Contract(SkyRocketNFTFactoryContract, nftContractAddress);
-          const res = await nftContract.methods.isApprovedForAll(account, storeContractAddress).call();
-          console.log('res', res);
+          const nftContract = new web3.eth.Contract(SkyRocketNFTFactoryContract, SKY_ROCKET_NFT_FACTORY_ADDRESS);
+          const res = await nftContract.methods.isApprovedForAll(account, SKY_ROCKET_STORE_ADDRESS).call();
           // @ts-ignore
           setApproved(res);
         } catch (e) {
@@ -107,7 +100,6 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
     if (!approved) {
       // Check if the contract is approved
-      console.log('isApproved: ', approved);
       isApproved();
     }
 
@@ -143,15 +135,13 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
             <button className={"pixel-box--primary pixel-box--success-custom pixelart-buy-nft"} onClick={() => {
               const SkyRocketNFTFactoryContract = require('../../ABI/SkyRocketNFTFactoryContract.json');
-              const nftContractAddress = '0x8012be7F96f3194E6677D9628218Ff2F4930d7d8';
-              const nftContract = new web3.eth.Contract(SkyRocketNFTFactoryContract, nftContractAddress);
+              const nftContract = new web3.eth.Contract(SkyRocketNFTFactoryContract, SKY_ROCKET_NFT_FACTORY_ADDRESS);
 
               // @ts-ignore
-              nftContract.methods.setApprovalForAll(storeContractAddress, true).send({
+              nftContract.methods.setApprovalForAll(SKY_ROCKET_STORE_ADDRESS, true).send({
                 from: account
               })
                 .on('receipt', function (receipt: any) {
-                  console.log('receipt', receipt);
                   setApproved(true);
                 })
                 .on('error', function (error: any) {
