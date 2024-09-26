@@ -14,11 +14,6 @@ import {
   SKY_ROCKET_NFT_FACTORY_ADDRESS
 } from "../../utils/Constants";
 
-interface StoreProps {
-  ownedDNA?: any[],
-  setTotalOwnedNFTsFunc?: (fake: number) => void
-}
-
 interface BattleProps {
   ownedDNA?: any[],
   setTotalOwnedNFTsFunc?: (fake: number) => void
