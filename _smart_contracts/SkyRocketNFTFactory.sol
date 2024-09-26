@@ -1003,7 +1003,7 @@ interface IERC1155MetadataURI is IERC1155 {
  *
  * _Available since v3.1._
  */
-contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
+abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     using Address for address;
 
     // Mapping from token ID to account balances
@@ -1102,40 +1102,6 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
         return _operatorApprovals[account][operator];
-    }
-
-    /**
-     * @dev See {IERC1155-safeTransferFrom}.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public virtual override {
-        require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: caller is not owner nor approved"
-        );
-        _safeTransferFrom(from, to, id, amount, data);
-    }
-
-    /**
-     * @dev See {IERC1155-safeBatchTransferFrom}.
-     */
-    function safeBatchTransferFrom(
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) public virtual override {
-        require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: transfer caller is not owner nor approved"
-        );
-        _safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 
     /**
@@ -1684,6 +1650,33 @@ contract SkyRocketNFTFactory is ERC1155Burnable, AccessControl {
     }
 
     /**
+    * @dev Add NFT to collection (mint) owner
+    **/
+    function addNFTToCollection(address _receiver, uint256 _nftId) internal isAdmin {
+        ownedNFTs[_receiver].push(_nftId);
+    }
+
+    /**
+    * @dev Remove NFT from collection (burn) owner
+    **/
+    function removeNFTFromCollection(address _receiver, uint256 _nftId) internal isAdmin {
+        // Loop through the ownedNFTs and remove the NFT Id,
+        // Create a new array without the NFT Id and replace the old array
+        uint256[] memory _ownedNFTs = new uint256[](ownedNFTs[_receiver].length - 1);
+
+        uint256 j = 0;
+        for (uint256 i = 0; i < ownedNFTs[_receiver].length; i++) {
+            if (ownedNFTs[_receiver][i] != _nftId) {
+                _ownedNFTs[j] = ownedNFTs[_receiver][i];
+                j++;
+            }
+        }
+
+        // Replace the old array with the new array
+        ownedNFTs[_receiver] = _ownedNFTs;
+    }
+
+    /**
     * @dev Mint the token to the _receiver address, although you can specify a quantity it is suggested to mint only 1
     * Only Admins are allowed to mint tokens
     **/
@@ -1700,20 +1693,60 @@ contract SkyRocketNFTFactory is ERC1155Burnable, AccessControl {
             "ERC1155: caller is not owner nor approved"
         );
 
-        // Loop through the ownedNFTs and remove the NFT Id,
-        // Create a new array without the NFT Id and replace the old array
-        uint256[] memory _ownedNFTs = new uint256[](ownedNFTs[account].length - 1);
-
-        for (uint256 i = 0; i < ownedNFTs[account].length; i++) {
-            if (ownedNFTs[account][i] != id) {
-                _ownedNFTs.push(ownedNFTs[account][i]);
-            }
-        }
-
-        // Replace the old array with the new array
-        ownedNFTs[account] = _ownedNFTs;
+        removeNFTFromCollection(account, id);
 
         _burn(account, id, value);
+    }
+
+    /**
+    * @dev See {IERC1155-safeTransferFrom}.
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public virtual override {
+        require(
+            from == _msgSender() || isApprovedForAll(from, _msgSender()),
+            "ERC1155: caller is not owner nor approved"
+        );
+
+        // Remove the NFT from the collection of the sender
+        removeNFTFromCollection(from, id);
+
+        // Add the NFT to the collection of the receiver
+        addNFTToCollection(to, id);
+
+        _safeTransferFrom(from, to, id, amount, data);
+    }
+
+    /**
+     * @dev See {IERC1155-safeBatchTransferFrom}.
+     */
+    function safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public virtual override {
+        require(
+            from == _msgSender() || isApprovedForAll(from, _msgSender()),
+            "ERC1155: transfer caller is not owner nor approved"
+        );
+
+        // For each NFT Id in the array, remove the NFT from the collection of the sender
+        for (uint256 i = 0; i < ids.length; i++) {
+            // Remove the NFT from the collection of the sender
+            removeNFTFromCollection(from, ids[i]);
+
+            // Add the NFT to the collection of the receiver
+            addNFTToCollection(to, ids[i]);
+        }
+
+        _safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 
     /**
@@ -1737,11 +1770,12 @@ contract SkyRocketNFTFactory is ERC1155Burnable, AccessControl {
         }
 
         SkyRocketNFT[nftId] = SkyRocketNFTStruct(true, 1, _tierName, _dna);
-        ownedNFTs[_receiver].push(nftId);
+
+        // Add the NFT Id to the ownedNFTs array
+        addNFTToCollection(_receiver, nftId);
 
         _mint(_receiver, nftId, 1, _data);
 
         _incrementNftId();
     }
-
 }

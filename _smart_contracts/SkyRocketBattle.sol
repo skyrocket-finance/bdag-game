@@ -1049,13 +1049,14 @@ contract SkyRocketBattle is ERC1155Holder, AccessControl {
         address winner;
     }
 
-    Battle[] public battles;
+    mapping(uint256 => Battle) public BattleStruct;  // Maps NFTId by SkyRocketNFTStruct
 
+    uint256 public createdBattles = 1;
     uint256 public totalWonBattles = 0;
 
     event UpdateSkyRocketNFTInterface(address admin, ISkyRocketNFTFactory oldSkyRocketNFTFactory, ISkyRocketNFTFactory newSkyRocketNFTFactory);
 
-    constructor(ISkyRocketNFTFactory _skyRocketNFTFactory, address _devWallet) {
+    constructor(ISkyRocketNFTFactory _skyRocketNFTFactory) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         skyRocketNFTFactory = _skyRocketNFTFactory;
     }
@@ -1081,7 +1082,7 @@ contract SkyRocketBattle is ERC1155Holder, AccessControl {
     * @dev Get the Balance of the wallet
     **/
     function getCreatedBattles() public view returns (uint256 _balance) {
-        return battles.length;
+        return createdBattles;
     }
 
     /**
@@ -1096,11 +1097,11 @@ contract SkyRocketBattle is ERC1155Holder, AccessControl {
     **/
     function getBattleDetails(uint256 _battleId) public view returns (address _initiator, address _opponent, uint256 _initiatorNFTId, uint256 _opponentNFTId, address _winner) {
         return (
-            battles[_battleId].initiator,
-            battles[_battleId].opponent,
-            battles[_battleId].initiatorNFTId,
-            battles[_battleId].opponentNFTId,
-            battles[_battleId].winner
+            BattleStruct[_battleId].initiator,
+            BattleStruct[_battleId].opponent,
+            BattleStruct[_battleId].initiatorNFTId,
+            BattleStruct[_battleId].opponentNFTId,
+            BattleStruct[_battleId].winner
         );
     }
 
@@ -1110,7 +1111,7 @@ contract SkyRocketBattle is ERC1155Holder, AccessControl {
     /**
     * @dev Generate a random number based on the DNA
     **/
-    function createRandomNumber(uint256 _dna) internal view returns (uint256)
+    function createRandomNumber(uint256 _dna) public view returns (uint256)
     {
         return
             uint256(
@@ -1131,15 +1132,9 @@ contract SkyRocketBattle is ERC1155Holder, AccessControl {
     function createBattle(uint256 _nftId) public {
         require(skyRocketNFTFactory.balanceOf(msg.sender, _nftId) >= 1, "You do not own this NFT");
 
-        Battle memory _battle = Battle({
-            initiator: msg.sender,
-            opponent: address(0),
-            initiatorNFTId: _nftId,
-            opponentNFTId: 0,
-            winner: address(0)
-        });
+        BattleStruct[createdBattles] = Battle(msg.sender, address(0), _nftId, 0, address(0));
 
-        battles.push(_battle);
+        createdBattles = createdBattles + 1;
 
         // Transfer the NFT to the contract
         skyRocketNFTFactory.safeTransferFrom(msg.sender, address(this), _nftId, 1, "");
@@ -1149,32 +1144,45 @@ contract SkyRocketBattle is ERC1155Holder, AccessControl {
     * @dev Join the battle, provide the battle ID
     **/
     function joinBattleAndFight(uint256 _battleId, uint256 _opponentNFTId) public {
-        require(battles[_battleId].opponent == address(0), "Battle already has an opponent");
-        require(battles[_battleId].initiator != msg.sender, "You cannot join your own battle");
+        require(BattleStruct[_battleId].opponent == address(0), "Battle already has an opponent");
+        require(BattleStruct[_battleId].initiator != msg.sender, "You cannot join your own battle");
         require(skyRocketNFTFactory.balanceOf(msg.sender, _opponentNFTId) >= 1, "You do not own this NFT");
 
         // Transfer the NFT to the contract
         skyRocketNFTFactory.safeTransferFrom(msg.sender, address(this), _opponentNFTId, 1, "");
 
-        battles[_battleId].opponent = msg.sender;
+        BattleStruct[_battleId].opponent = msg.sender;
 
-        uint256 _initiatorNFTDNA = skyRocketNFTFactory.getDNAByNFTId(battles[_battleId].initiatorNFTId);
-        uint256 _opponentNFTDNA = skyRocketNFTFactory.getDNAByNFTId(battles[_battleId].opponentNFTId);
+        uint256 _initiatorNFTDNA = skyRocketNFTFactory.getDNAByNFTId(BattleStruct[_battleId].initiatorNFTId);
+        uint256 _opponentNFTDNA = skyRocketNFTFactory.getDNAByNFTId(BattleStruct[_battleId].opponentNFTId);
 
         uint256 _initiatorRandomNumber = createRandomNumber(_initiatorNFTDNA);
         uint256 _opponentRandomNumber = createRandomNumber(_opponentNFTDNA);
 
         // Fight between random numbers:
         if (_initiatorRandomNumber > _opponentRandomNumber) {
-            battles[_battleId].winner = battles[_battleId].initiator;
+            BattleStruct[_battleId].winner = BattleStruct[_battleId].initiator;
         } else {
-            battles[_battleId].winner = battles[_battleId].opponent;
+            BattleStruct[_battleId].winner = BattleStruct[_battleId].opponent;
         }
 
-        totalWonBattles = totalWonBattles.add(1);
+        totalWonBattles = totalWonBattles + 1;
 
         // Transfer both NFTs back to the winner
-        skyRocketNFTFactory.safeTransferFrom(address(this), battles[_battleId].winner, battles[_battleId].opponentNFTId, 1, "");
-        skyRocketNFTFactory.safeTransferFrom(address(this), battles[_battleId].winner, battles[_battleId].initiatorNFTId, 1, "");
+        skyRocketNFTFactory.safeTransferFrom(address(this), BattleStruct[_battleId].winner, BattleStruct[_battleId].opponentNFTId, 1, "");
+        skyRocketNFTFactory.safeTransferFrom(address(this), BattleStruct[_battleId].winner, BattleStruct[_battleId].initiatorNFTId, 1, "");
+    }
+
+    /**
+    * @dev Cancel the battle, provide the battle ID
+    **/
+    function cancelBattle(uint256 _battleId) public {
+        require(BattleStruct[_battleId].initiator == msg.sender, "You are not the initiator of this battle");
+        require(BattleStruct[_battleId].winner == address(0), "This battle has already been won");
+
+        // Transfer the NFT back to the initiator
+        skyRocketNFTFactory.safeTransferFrom(address(this), BattleStruct[_battleId].initiator, BattleStruct[_battleId].initiatorNFTId, 1, "");
+
+        delete BattleStruct[_battleId];
     }
 }

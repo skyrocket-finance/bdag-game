@@ -9,6 +9,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Store from "./AppGame/Store";
 import Profile from "./AppGame/Profile";
+import Battle from "./AppGame/Battle";
 
 const SkyRocketNFTFactoryContract = require('../ABI/SkyRocketNFTFactoryContract.json');
 
@@ -19,7 +20,7 @@ export const AppGame = () => {
 
   const web3 = new Web3(connector.provider);
 
-  const nftContractAddress = '0xA6d20B0696BAfc8f13232efe97FE52106b8759F2';
+  const nftContractAddress = '0x8012be7F96f3194E6677D9628218Ff2F4930d7d8';
   const contract = new web3.eth.Contract(SkyRocketNFTFactoryContract, nftContractAddress);
 
   function setTotalOwnedNFTsFunc(fake: number) {
@@ -113,9 +114,8 @@ export const AppGame = () => {
               <Store ownedDNA={ownedNFTsDNA} setTotalOwnedNFTsFunc={setTotalOwnedNFTsFunc}/>
             </Tab>
 
-
             <Tab eventKey="battle" title="Battle">
-              Coming Soon!!1
+              <Battle ownedDNA={ownedNFTsDNA} setTotalOwnedNFTsFunc={setTotalOwnedNFTsFunc}/>
             </Tab>
           </Tabs>
 

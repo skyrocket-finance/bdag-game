@@ -24,7 +24,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
   const web3 = new Web3(connector.provider);
 
-  const storeContractAddress = '0x36AC02513f9E4595134F659A7961F6743f12860e';
+  const storeContractAddress = '0x653C5dC5f7f87A2E6260aA5Be71AB0172Ed865a2';
   const contract = new web3.eth.Contract(SkyRocketStoreContract, storeContractAddress);
 
   function buyNFT() {
@@ -33,7 +33,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
       // eslint-disable-next-line
       contract.methods.buySkyRocketNFT().send({
         from: account,
-        value: "5000000000000000000",
+        value: "100000000000000000",
         gasPrice: Web3.utils.toWei("5", "gwei"),
         gas: Web3.utils.toWei("0.0000000000005", "ether")
       })
@@ -79,9 +79,9 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
-      console.log('fetchData');
+    const isApproved = async () => {
       if (account) {
+        console.log('account', account);
         try {
           // eslint-disable-next-line
           const SkyRocketNFTFactoryContract = require('../../ABI/SkyRocketNFTFactoryContract.json');
@@ -107,7 +107,8 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
     if (!approved) {
       // Check if the contract is approved
-      fetchData();
+      console.log('isApproved: ', approved);
+      isApproved();
     }
 
     // eslint-disable-next-line
@@ -142,7 +143,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
             <button className={"pixel-box--primary pixel-box--success-custom pixelart-buy-nft"} onClick={() => {
               const SkyRocketNFTFactoryContract = require('../../ABI/SkyRocketNFTFactoryContract.json');
-              const nftContractAddress = '0xA6d20B0696BAfc8f13232efe97FE52106b8759F2';
+              const nftContractAddress = '0x8012be7F96f3194E6677D9628218Ff2F4930d7d8';
               const nftContract = new web3.eth.Contract(SkyRocketNFTFactoryContract, nftContractAddress);
 
               // @ts-ignore
