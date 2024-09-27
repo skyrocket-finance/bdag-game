@@ -15,7 +15,11 @@ import { SKY_ROCKET_NFT_FACTORY_ADDRESS } from "../utils/Constants";
 
 const SkyRocketNFTFactoryContract = require('../ABI/SkyRocketNFTFactoryContract.json');
 
-export const AppGame = () => {
+interface AppGameProps {
+  showToonFightFunc?: (val: boolean) => void
+}
+
+export const AppGame = ({showToonFightFunc}: AppGameProps) => {
   const {connector, account} = useWeb3React();
   const [totalOwnedNFTS, setTotalOwnedNFTS] = useState<number>(0);
   const [ownedNFTsDNA, setOwnedNFTsDNA] = useState<any[]>([]);
@@ -73,7 +77,7 @@ export const AppGame = () => {
 
     fetchData();
 
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [account, totalOwnedNFTS]);
 
   if (!account) {
@@ -112,7 +116,7 @@ export const AppGame = () => {
             </Tab>
 
             <Tab eventKey="battle" title="Battle">
-              <Battle ownedDNA={ownedNFTsDNA} setTotalOwnedNFTsFunc={setTotalOwnedNFTsFunc}/>
+              <Battle ownedDNA={ownedNFTsDNA} setTotalOwnedNFTsFunc={setTotalOwnedNFTsFunc} showToonFightFunc={showToonFightFunc}/>
             </Tab>
           </Tabs>
 

@@ -20,6 +20,31 @@
   margin-left: -100px;
 }
 
+
+.gif_image {
+  min-width: 300px;
+}
+
+.loader-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  // z-index: 1000;
+  background-color:rgba(0,0,0,0.5);
+  top: 0;
+  z-index: 1109;
+}
+
+.popup-spinner{
+  margin-top: 25%;
+  top: 0;
+  // position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1110;
+}
+
 @import "char/char";
 @import "metamask";
 

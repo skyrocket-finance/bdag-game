@@ -19,9 +19,10 @@ import {
 interface BattleProps {
   ownedDNA?: any[],
   setTotalOwnedNFTsFunc?: (fake: number) => void
+  showToonFightFunc?: (val: boolean) => void
 }
 
-const Battle = ({ownedDNA, setTotalOwnedNFTsFunc}: BattleProps) => {
+const Battle = ({ownedDNA, setTotalOwnedNFTsFunc, showToonFightFunc}: BattleProps) => {
   const {connector, account} = useWeb3React();
   const [show, setShow] = useState(false);
   let [createBattle, setCreateBattle] = useState(false);
@@ -126,6 +127,8 @@ const Battle = ({ownedDNA, setTotalOwnedNFTsFunc}: BattleProps) => {
       }
 
       if (fightBattle) {
+        showToonFightFunc && showToonFightFunc(true);
+
         battleContract.methods.joinBattleAndFight(selectedBattle, selectedNFTId).send({
           from: account,
           gasPrice: Web3.utils.toWei("5", "gwei"),
@@ -133,9 +136,14 @@ const Battle = ({ownedDNA, setTotalOwnedNFTsFunc}: BattleProps) => {
         }).on('receipt', function (receipt: any) {
           if (!refresh) {
             setRefresh(true);
+            showToonFightFunc && showToonFightFunc(false);
+          }
+        }).on('error', function (error: any) {
+          if (!refresh) {
+            setRefresh(true);
+            showToonFightFunc && showToonFightFunc(false);
           }
         });
-
 
         console.log('fightBattle', fightBattle);
         console.log('selectedNFTId', selectedNFTId);
@@ -241,55 +249,55 @@ const Battle = ({ownedDNA, setTotalOwnedNFTsFunc}: BattleProps) => {
             <hr className="mt-2 mb-3"/>
             <div className={"container"}>
               <div className={"row"}>
-              {currentBattles && currentBattles.length === 0 ?
-                <div>
-                  There are no battles going on right now, create one!
-                </div>
-                : currentBattles && currentBattles.map((currentBattle, index) => {
-                return (
-                  <>
-                    <div className={"col"}>
-                    <CharRocket key={index} dna={currentBattle}/>
+                {currentBattles && currentBattles.length === 0 ?
+                  <div>
+                    There are no battles going on right now, create one!
+                  </div>
+                  : currentBattles && currentBattles.map((currentBattle, index) => {
+                  return (
+                    <>
+                      <div className={"col"}>
+                        <CharRocket key={index} dna={currentBattle}/>
 
-                    {(currentBattle.initiator === account ?
+                        {(currentBattle.initiator === account ?
 
-                          <button className={"pixel-box--warning text-black-50 battle-button"} onClick={() => {
-                            const SkyRocketBattleContract = require('../../ABI/SkyRocketBattleContract.json');
-                            const battleContract = new web3.eth.Contract(SkyRocketBattleContract, SKY_ROCKET_BATTLE_ADDRESS);
+                            <button className={"pixel-box--warning text-black-50 battle-button"} onClick={() => {
+                              const SkyRocketBattleContract = require('../../ABI/SkyRocketBattleContract.json');
+                              const battleContract = new web3.eth.Contract(SkyRocketBattleContract, SKY_ROCKET_BATTLE_ADDRESS);
 
-                            battleContract.methods.cancelBattle(currentBattle.id).send({
-                              from: account,
-                              gasPrice: Web3.utils.toWei("5", "gwei"),
-                              gas: Web3.utils.toWei("0.0000000000005", "ether")
-                            })
-                              .on('receipt', function (receipt: any) {
-
-                                if (!refresh) {
-                                  setRefresh(true);
-                                }
-
+                              battleContract.methods.cancelBattle(currentBattle.id).send({
+                                from: account,
+                                gasPrice: Web3.utils.toWei("5", "gwei"),
+                                gas: Web3.utils.toWei("0.0000000000005", "ether")
                               })
-                              .on('error', function (error: any) {
-                                console.log('error', error);
-                              });
+                                .on('receipt', function (receipt: any) {
 
-                          }}>
-                          Cancel
-                        </button>
-                    :
-                      <button className={"pixel-box--success text-black-50 battle-button"} onClick={() => {
-                        setSelectedBattle(currentBattle.id);
-                        handleShow(createBattle = false, fightBattle = true);
-                      }}>
-                        Fight
-                      </button>
+                                  if (!refresh) {
+                                    setRefresh(true);
+                                  }
 
-                    )}
+                                })
+                                .on('error', function (error: any) {
+                                  console.log('error', error);
+                                });
 
-                    </div>
-                  </>
-                );
-              })}
+                            }}>
+                              Cancel
+                            </button>
+                            :
+                            <button className={"pixel-box--success text-black-50 battle-button"} onClick={() => {
+                              setSelectedBattle(currentBattle.id);
+                              handleShow(createBattle = false, fightBattle = true);
+                            }}>
+                              Fight
+                            </button>
+
+                        )}
+
+                      </div>
+                    </>
+                  );
+                })}
               </div>
             </div>
           </Col>
@@ -319,6 +327,7 @@ const Battle = ({ownedDNA, setTotalOwnedNFTsFunc}: BattleProps) => {
         </Modal.Body>
 
       </Modal>
+
     </>
   )
 }
