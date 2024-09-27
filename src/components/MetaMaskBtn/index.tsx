@@ -8,13 +8,27 @@ const MetaMaskBtn = () => {
   const {useSelectedAccount} = hooks;
   const account = useSelectedAccount(connector);
 
+  const chainId = "24171";
+  const chainIdHex = Web3.utils.toHex(parseInt(chainId));
+
+  const loginWithMetaMask = async () => {
+    setLoading(true);
+    try {
+      await connector.activate(chainId);
+    } catch (err) {
+      console.log("User rejected the request", err);
+      setLoading(false);
+    }
+  }
+
   const onConnectMetaMask = async () => {
-    const chainId = process.env.SUPPORT_CHAIN_ID || "24171";
+
     try {
 
       console.log(window.ethereum)
       console.log(window.ethereum.networkVersion)
       console.log(window.ethereum.isMetaMask)
+
       if (
         chainId &&
         window.ethereum &&
@@ -22,25 +36,65 @@ const MetaMaskBtn = () => {
       ) {
         try {
           await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{chainId: Web3.utils.toHex(parseInt(chainId)), lookupAddress: "0x1"}],
+            method: 'wallet_switchEthereumChain',
+            params: [{chainId: chainIdHex}]
+          }).then(async (result: any) => {
+            await loginWithMetaMask();
           });
         } catch (err: any) {
-          console.log("Network changed rejected", err);
+          // This error code indicates that the chain has not been added to MetaMask
+          if (err.code === 4902) {
+            console.log("Chain not added to MetaMask......");
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: chainIdHex,
+                  chainName: 'BlockDAG Testnet',
+                  nativeCurrency: {name: 'BDAG', decimals: 18, symbol: 'BDAG'},
+                  rpcUrls: ['https://rpc-testnet.bdagscan.com'],
+                  blockExplorerUrls: ['https://bdagscan.com'],
+                }
+              ]
+            }).then(async (result: any) => {
+              await loginWithMetaMask();
+            });
+          }
         }
       } else {
-        setLoading(true);
-        try {
-          await connector.activate(chainId);
-        } catch (err) {
-          console.log("User rejected the request", err);
-          setLoading(false);
-        }
+        await loginWithMetaMask();
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  //     if (
+  //       chainId &&
+  //       window.ethereum &&
+  //       window.ethereum.networkVersion !== chainId
+  //     ) {
+  //       try {
+  //         await window.ethereum.request({
+  //           method: "wallet_switchEthereumChain",
+  //           params: [{chainId: Web3.utils.toHex(parseInt(chainId)), lookupAddress: "0x1"}],
+  //         });
+  //       } catch (err: any) {
+  //         console.log("Network changed rejected", err);
+  //       }
+  //     } else {
+  //       setLoading(true);
+  //       try {
+  //         await connector.activate(chainId);
+  //       } catch (err) {
+  //         console.log("User rejected the request", err);
+  //         setLoading(false);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   // const onDisconnectMetaMask = () => {
   //   if (connector?.deactivate) {
