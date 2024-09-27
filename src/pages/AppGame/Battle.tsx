@@ -18,11 +18,11 @@ import {
 
 interface BattleProps {
   ownedDNA?: any[],
-  setTotalOwnedNFTsFunc?: (fake: number) => void
-  showToonFightFunc?: (val: boolean) => void
+  setTotalOwnedNFTsFunc?: (fake: number) => void,
+  setFightResultArrayFunc?: (val: any[]) => void
 }
 
-const Battle = ({ownedDNA, setTotalOwnedNFTsFunc, showToonFightFunc}: BattleProps) => {
+const Battle = ({ownedDNA, setTotalOwnedNFTsFunc, setFightResultArrayFunc}: BattleProps) => {
   const {connector, account} = useWeb3React();
   const [show, setShow] = useState(false);
   let [createBattle, setCreateBattle] = useState(false);
@@ -35,7 +35,7 @@ const Battle = ({ownedDNA, setTotalOwnedNFTsFunc, showToonFightFunc}: BattleProp
 
   const web3 = new Web3(connector.provider);
 
-  function handleClose(createBattle: boolean = false, fightBattle: boolean = false) {
+  function handleClose() {
     setShow(false);
   }
 
@@ -114,36 +114,50 @@ const Battle = ({ownedDNA, setTotalOwnedNFTsFunc, showToonFightFunc}: BattleProp
       const battleContract = new web3.eth.Contract(SkyRocketBattleContract, SKY_ROCKET_BATTLE_ADDRESS);
 
       if (createBattle) {
-
-        battleContract.methods.createBattle(selectedNFTId).send({
-          from: account,
-          gasPrice: Web3.utils.toWei("5", "gwei"),
-          gas: Web3.utils.toWei("0.0000000000005", "ether")
-        }).on('receipt', function (receipt: any) {
-          if (!refresh) {
-            setRefresh(true);
-          }
-        });
+          battleContract.methods.createBattle(selectedNFTId).send({
+            from: account,
+            gasPrice: Web3.utils.toWei("5", "gwei"),
+            gas: Web3.utils.toWei("0.0000000000005", "ether")
+          }).then(async function (receipt) {
+            console.log('receipt', receipt);
+          }).catch(e => {
+            console.log('error', e);
+          });
       }
 
       if (fightBattle) {
-        showToonFightFunc && showToonFightFunc(true);
+        setFightResultArrayFunc && setFightResultArrayFunc([true, ""]);
 
-        battleContract.methods.joinBattleAndFight(selectedBattle, selectedNFTId).send({
-          from: account,
-          gasPrice: Web3.utils.toWei("5", "gwei"),
-          gas: Web3.utils.toWei("0.0000000000005", "ether")
-        }).on('receipt', function (receipt: any) {
+        try {
+          battleContract.methods.joinBattleAndFight(selectedBattle, selectedNFTId).send({
+            from: account,
+            gasPrice: Web3.utils.toWei("5", "gwei"),
+            gas: Web3.utils.toWei("0.0000000000005", "ether")
+          }).then(async function (receipt) {
+
+            let battle = await battleContract.methods.getBattleDetails(selectedBattle).call();
+            console.log('battle', battle);
+            console.log('account', account);
+
+            // @ts-ignore
+            if (!refresh) {
+              setRefresh(true);
+              // @ts-ignore
+              setFightResultArrayFunc && setFightResultArrayFunc([false, battle[4]]);
+            }
+
+          }).catch(e => {
+            if (!refresh) {
+              setRefresh(true);
+              setFightResultArrayFunc && setFightResultArrayFunc([false, ""]);
+            }
+          });
+        } catch (e) {
           if (!refresh) {
             setRefresh(true);
-            showToonFightFunc && showToonFightFunc(false);
+            setFightResultArrayFunc && setFightResultArrayFunc([false, ""]);
           }
-        }).on('error', function (error: any) {
-          if (!refresh) {
-            setRefresh(true);
-            showToonFightFunc && showToonFightFunc(false);
-          }
-        });
+        }
 
         console.log('fightBattle', fightBattle);
         console.log('selectedNFTId', selectedNFTId);
