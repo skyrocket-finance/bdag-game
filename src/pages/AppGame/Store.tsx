@@ -7,7 +7,12 @@ import Web3 from "web3";
 import React, { useEffect, useState } from "react";
 
 import { CharRocket } from "../../components/CharRocket";
-import { PRICE_PER_NFT, SKY_ROCKET_NFT_FACTORY_ADDRESS, SKY_ROCKET_STORE_ADDRESS } from "../../utils/Constants";
+import {
+  PRICE_PER_NFT,
+  SKY_ROCKET_CURRENCY_NAME,
+  SKY_ROCKET_NFT_FACTORY_ADDRESS, SKY_ROCKET_NFT_PRICE_IN_ETH,
+  SKY_ROCKET_STORE_ADDRESS
+} from "../../utils/Constants";
 
 
 const SkyRocketStoreContract = require('../../ABI/SkyRocketStoreContract.json');
@@ -163,7 +168,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
         <h2 id={"buy-nft"}>Buy NFTs</h2>
         <Col xs="12" md={"12"} lg={"12"} className={'pixel-box--primary pixel-borders--2 '}>
 
-          Buy a SkyRocket NFT for 5 BDAG
+          Buy a SkyRocket NFT for {SKY_ROCKET_NFT_PRICE_IN_ETH} {SKY_ROCKET_CURRENCY_NAME}
           <br/>
           <br/>
           <button className={"pixel-box--primary pixel-box--success-custom pixelart-buy-nft"} onClick={buyNFT}>Buy
@@ -175,7 +180,7 @@ const Store = ({ownedDNA, setTotalOwnedNFTsFunc}: StoreProps) => {
 
         <h2 id={"sell-nft"}>Sell NFTs</h2>
         <Col xs="12" md={"12"} lg={"12"} className={'pixel-box--primary pixel-borders--2 '}>
-          <span>Sell a SkyRocket NFT for 2.5 BDAG. Click on any NFT</span><br/>
+          <span>Sell a SkyRocket NFT for {SKY_ROCKET_NFT_PRICE_IN_ETH / 2} {SKY_ROCKET_CURRENCY_NAME}. Click on any NFT</span><br/>
           {ownedDNA && ownedDNA.length === 0 ?
             <div>
               You do not have any NFTs yet. Go to the store to buy some!

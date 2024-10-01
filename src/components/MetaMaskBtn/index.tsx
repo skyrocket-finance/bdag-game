@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import Web3 from "web3";
+import {
+  SKY_ROCKET_CHAIN_BLOCK_EXPLORER,
+  SKY_ROCKET_CHAIN_ID,
+  SKY_ROCKET_CHAIN_NAME,
+  SKY_ROCKET_CHAIN_NETWORK_CURRENCY,
+  SKY_ROCKET_CHAIN_RPC_URLS
+} from "../../utils/Constants";
 
 const MetaMaskBtn = () => {
   const [loading, setLoading] = useState(false);
@@ -8,13 +15,12 @@ const MetaMaskBtn = () => {
   const {useSelectedAccount} = hooks;
   const account = useSelectedAccount(connector);
 
-  const chainId = "24171";
-  const chainIdHex = Web3.utils.toHex(parseInt(chainId));
+  const chainIdHex = Web3.utils.toHex(SKY_ROCKET_CHAIN_ID);
 
   const loginWithMetaMask = async () => {
     setLoading(true);
     try {
-      await connector.activate(chainId);
+      await connector.activate(SKY_ROCKET_CHAIN_ID);
     } catch (err) {
       console.log("User rejected the request", err);
       setLoading(false);
@@ -24,15 +30,10 @@ const MetaMaskBtn = () => {
   const onConnectMetaMask = async () => {
 
     try {
-
-      console.log(window.ethereum)
-      console.log(window.ethereum.networkVersion)
-      console.log(window.ethereum.isMetaMask)
-
       if (
-        chainId &&
+        SKY_ROCKET_CHAIN_ID &&
         window.ethereum &&
-        window.ethereum.networkVersion !== chainId
+        window.ethereum.networkVersion !== SKY_ROCKET_CHAIN_ID
       ) {
         try {
           await window.ethereum.request({
@@ -50,10 +51,10 @@ const MetaMaskBtn = () => {
               params: [
                 {
                   chainId: chainIdHex,
-                  chainName: 'BlockDAG Testnet',
-                  nativeCurrency: {name: 'BDAG', decimals: 18, symbol: 'BDAG'},
-                  rpcUrls: ['https://rpc-testnet.bdagscan.com'],
-                  blockExplorerUrls: ['https://bdagscan.com'],
+                  chainName: SKY_ROCKET_CHAIN_NAME,
+                  nativeCurrency: SKY_ROCKET_CHAIN_NETWORK_CURRENCY,
+                  rpcUrls: SKY_ROCKET_CHAIN_RPC_URLS,
+                  blockExplorerUrls: SKY_ROCKET_CHAIN_BLOCK_EXPLORER,
                 }
               ]
             }).then(async (result: any) => {
@@ -68,33 +69,6 @@ const MetaMaskBtn = () => {
       console.log(error);
     }
   };
-
-  //     if (
-  //       chainId &&
-  //       window.ethereum &&
-  //       window.ethereum.networkVersion !== chainId
-  //     ) {
-  //       try {
-  //         await window.ethereum.request({
-  //           method: "wallet_switchEthereumChain",
-  //           params: [{chainId: Web3.utils.toHex(parseInt(chainId)), lookupAddress: "0x1"}],
-  //         });
-  //       } catch (err: any) {
-  //         console.log("Network changed rejected", err);
-  //       }
-  //     } else {
-  //       setLoading(true);
-  //       try {
-  //         await connector.activate(chainId);
-  //       } catch (err) {
-  //         console.log("User rejected the request", err);
-  //         setLoading(false);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   // const onDisconnectMetaMask = () => {
   //   if (connector?.deactivate) {

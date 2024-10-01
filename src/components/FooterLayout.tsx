@@ -31,7 +31,7 @@ export const FooterLayout = () => {
           <div className="col-md-4 mb-3">
             <h5>Quick Links</h5>
             <ul className="list-unstyled ">
-              <li><a href="https://blockdag.network" target='_blank' rel="noreferrer" className="text-white-50">BlockDAG</a></li>
+              <li><a href="https://coinmarketcap.com/" target='_blank' rel="noreferrer" className="text-white-50">CoinMarketCap</a></li>
             </ul>
           </div>
         </div>
