@@ -15,16 +15,16 @@
 //
 
 // SONIC LABS
-export const SKY_ROCKET_CHAIN_ID = 64165;
-export const SKY_ROCKET_CHAIN_NAME = "Sonic Testnet";
+export const SKY_ROCKET_CHAIN_ID = 146;
+export const SKY_ROCKET_CHAIN_NAME = "Sonic Network";
 export const SKY_ROCKET_CHAIN_NETWORK_CURRENCY = {name: 'Sonic', decimals: 18, symbol: 'S'}
-export const SKY_ROCKET_CHAIN_RPC_URLS = ['https://rpc.testnet.soniclabs.com'];
-export const SKY_ROCKET_CHAIN_BLOCK_EXPLORER = ['https://public-sonic.fantom.network'];
+export const SKY_ROCKET_CHAIN_RPC_URLS = ['https://rpc.soniclabs.com'];
+export const SKY_ROCKET_CHAIN_BLOCK_EXPLORER = ['https://SonicScan.org'];
 export const SKY_ROCKET_CURRENCY_NAME = 'Sonic';
-export const SKY_ROCKET_NFT_PRICE_IN_ETH = 0.1;
+export const SKY_ROCKET_NFT_PRICE_IN_ETH = 5;
 
-export const SKY_ROCKET_NFT_FACTORY_ADDRESS = '0x89D02638e3B8e5A6FFAb051FBE253F8cceC1Abfb';
-export const SKY_ROCKET_STORE_ADDRESS = '0xf067fbf28dd6723076E4ECde19887CB13eD3E45E';
-export const SKY_ROCKET_BATTLE_ADDRESS = '0xfCd1e65BdBE824FDB75F1D421179ef0ceA320318';
+export const SKY_ROCKET_NFT_FACTORY_ADDRESS = '0x08bEE8a6884946f63a7b427aC42555C8CE4918f3';
+export const SKY_ROCKET_STORE_ADDRESS = '0x24a183E82B56bc4fb4cDb111E58a489A6fab054f';
+export const SKY_ROCKET_BATTLE_ADDRESS = '0x46E74Db44037254E97d1198D2A96C59b333ffbda';
 
-export const PRICE_PER_NFT = "100000000000000000"; // 0.1 ETH
+export const PRICE_PER_NFT = "5000000000000000000"; // 0.1 ETH

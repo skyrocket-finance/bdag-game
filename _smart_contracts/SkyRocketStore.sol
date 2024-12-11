@@ -1047,7 +1047,7 @@ contract StoreSkyRocketNFT is ERC1155Holder, AccessControl  {
     address private devWallet;
 
     // NFT Price in WEI
-    uint256 public nftPrice = 100_000_000_000_000_000;  // 0.1 ETH
+    uint256 public nftPrice = 5_000_000_000_000_000_000;  // 0.1 ETH
 
     uint256 public totalNFTsBought = 0;
     uint256 public totalETHReceived = 0;
