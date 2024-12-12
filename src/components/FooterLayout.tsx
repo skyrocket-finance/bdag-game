@@ -47,7 +47,7 @@ export const FooterLayout = () => {
               {/*</li>*/}
 
               <li>
-                <a href="https://sonicscan.org/address/0x24a183e82b56bc4fb4cdb111e58a489a6fab054f#code" target='_blank' rel="noreferrer"
+                <a href="https://sonicscan.org/address/0x08bee8a6884946f63a7b427ac42555c8ce4918f3#code" target='_blank' rel="noreferrer"
                    className="text-white-50">Contract NFT</a>
               </li>
               <li>
